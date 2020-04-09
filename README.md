@@ -30,7 +30,27 @@
 
 2. 引入 mongoose 并连接数据库
 
+    ``` JavaScript
+    // 引入 mongoose
+    const mongoose = require("mongoose");
+
+    // 链接数据库
+    mongoose.connect("mongodb://localhost:27017/eggcms", { useNewUrlParser: true, useUnifiedTopology: true });
+    // 如果有账户密码需要次啊用下面的连接方式
+    //mongoose.connect("mongodb://eggadmin:123456@localhost:27017/eggcms");
+    ```
+
 3. 定义 Schema：数据库中的 Schema，为数据库对象的集合。schema 是 mongoose 里会用到的一种数据模式，可以理解为表结构的定义；每个 schema 会映射到 mongodb 中的一个 collection，他不具备操作数据库的能力。
+
+    ``` JavaScript
+    // 操作 user 表（集合），定义一个 Schema
+    // Schema 中的字段需要与数据库中的字段一一对应，并对字段格式进行规定
+    var UserSchema = mongoose.Schema({
+        name: String,
+        age: Number,
+        status: Number
+    });
+    ```
 
 4. 创建数据库模型
 
@@ -42,4 +62,25 @@
     - 如果传入 2 个参数的话：这个模型会和模型名称相同的复数的数据库建立连接；如通过 `var User = mongoose.model("User", UserSchema)` 方法创建模型，那么这个模型将会操作 Users 这个集合。
     - 如果传入 3 个参数的话：模型默认操作第三个参数定义的集合名称。
 
+        ``` JavaScript
+        // 定义数据库模型，操作数据库
+        /*
+            model 里面的第一个参数要注意： 首字母大写， 要和数据库表（ 集合） 名称对应，
+            这个模型会和模型名称相同的复数的数据库建立连接，如下默认操作 users 集合
+        */
+        var User = mongoose.model("User", UserSchema);
+        // 通过第三个参数来指定要操作的数据库
+        //var User = mongoose.model("User", UserSchema, "user");
+        ```
+
 5. 查找数据
+
+    ``` JavaScript
+    User.find({}, (err, doc) => {
+        if (err) {
+            console.log("查询出错：" + err);
+        } else {
+            console.log(doc);
+        }
+    });
+    ```
