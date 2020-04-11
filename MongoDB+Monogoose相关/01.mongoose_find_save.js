@@ -23,17 +23,34 @@ var UserSchema = mongoose.Schema({
     model 里面的第一个参数要注意： 首字母大写， 要和数据库表（ 集合） 名称对应，
     这个模型会和模型名称相同的复数的数据库建立连接，如下默认操作 users 集合
 */
-//var User = mongoose.model("User", UserSchema);
+//var User = mongoose.model("User", UserSchema); // 默认操作 users 集合
 // 通过第三个参数来指定要操作的数据库
-var User = mongoose.model("User", UserSchema, "user");
+var User = mongoose.model("User", UserSchema, "user"); // 操作第三个参数指定的表
 
 // 5. 查询 users 表的数据
-User.find({}, (err, doc) => {
+/* User.find({}, (err, doc) => {
     if (err) {
         console.log("查询出错：" + err);
     } else {
         console.log(doc);
     }
-});
+}); */
 
 // 6. 增加数据
+/*
+    实例化 Model，通过实例化的 Model 创建增加的数据
+    实例.save()
+*/
+/* var u = new User({
+    name: "孙一",
+    age: 20,
+    status: 1
+});
+u.save(err => {
+    if (err) {
+        console.log(err);
+        return;
+    } else {
+        console.log("success!");
+    }
+}); */
