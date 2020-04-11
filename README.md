@@ -84,3 +84,30 @@
         }
     });
     ```
+
+6. 增加数据
+
+    ``` JavaScript
+    /*
+        实例化 Model，通过实例化的 Model 创建增加的数据
+        实例.save()
+    */
+    var u = new User({
+        name: "孙一",
+        age: 20,
+        status: 1
+    });
+    u.save(err => {
+        if (err) {
+            console.log(err);
+            return;
+        } else {
+            console.log("success!");
+        }
+    });
+    ```
+
+7. 更新数据
+
+    ``` JavaScript
+    ```
