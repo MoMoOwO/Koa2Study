@@ -27,21 +27,23 @@ var UserSchema = mongoose.Schema({
 // 通过第三个参数来指定要操作的数据库
 var User = mongoose.model("User", UserSchema, "user"); // 操作第三个参数指定的表
 
+console.log("-----find-----");
 // 5. 查询 users 表的数据
-/* User.find({}, (err, doc) => {
+User.find({}, (err, doc) => {
     if (err) {
         console.log("查询出错：" + err);
     } else {
         console.log(doc);
     }
-}); */
+});
 
 // 6. 增加数据
 /*
     实例化 Model，通过实例化的 Model 创建增加的数据
     实例.save()
 */
-/* var u = new User({
+console.log("-------save--------");
+var u = new User({
     name: "孙一",
     age: 20,
     status: 1
@@ -53,4 +55,12 @@ u.save(err => {
     } else {
         console.log("success!");
     }
-}); */
+});
+
+User.find({}, (err, doc) => {
+    if (err) {
+        console.log("查询出错：" + err);
+    } else {
+        console.log(doc);
+    }
+});
