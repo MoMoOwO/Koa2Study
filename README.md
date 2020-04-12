@@ -110,4 +110,35 @@
 7. 更新数据
 
     ``` JavaScript
+    /*
+        第一个参数为查询条件，即查询到要修改的数据
+        第二个参数为修改条件
+    */
+    News.updateOne({
+        "_id": "5e91d387edfdbb061454b417"
+    }, {
+        "title": "修改后的title1"
+    }, (err, doc) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log("Success!");
+    });
     ```
+
+8. 删除数据
+
+    ``` JavaScript
+    // 参数一为要删除的数据的查询条件
+    News.deleteOne({
+        "title": "修改后的title1"
+    }, (err) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("删除成功！");
+        }
+    });
+    ```
+
+9. mongoose 默认参数：增加数据的时候如果不传入数据则会使用默认配置的数据
