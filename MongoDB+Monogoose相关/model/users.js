@@ -5,12 +5,12 @@ var mongoose = require("./db.js");
 var UserSchema = mongoose.Schema({
     name: {
         type: String,
-        unique: true // 通过 unique 设置唯一索引
+        // 使用 get 来对直接从模型实例获取数据时进行格式化
+        get(params) {
+            return "a001" + params;
+        }
     },
-    age: {
-        type: Number,
-        index: true // 通过 index 属性来设置索引
-    },
+    age: Number,
     status: {
         type: Number,
         default: 1
