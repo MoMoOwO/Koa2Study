@@ -24,7 +24,7 @@
 
     (2) 基于 MongoDB 驱动，简化操作
 
-### mongoose 安装已经使用
+### mongoose 安装以及使用
 
 1. 安装：`npm i mongoose --save`
 
@@ -142,3 +142,225 @@
     ```
 
 9. mongoose 默认参数：增加数据的时候如果不传入数据则会使用默认配置的数据
+
+    ``` JavaScript
+    var UserSchema = mongoose.Schema({
+        name: String,
+        age: Number,
+        status: {
+            // 通过对字段指定一个对象，对象中 type 指定字段类型，default 指定默认参数，
+            // 即在插入数据时，如果没有为该字段赋值，则会使用该默认参数
+            type: Number,
+            default: 1
+        }
+    });
+    // Schema 中定义了默认参数，则插入数据时，如果没有为该字段赋值，则会使用该默认参数
+    var u = new UserModel({
+        name: "王七",
+        age: 19
+    });
+    u.save();
+
+    ```
+
+10. 模块化
+
+### Mongoose 预定义模式修饰符 Getters 与 Setters 自定义修饰符
+
+1. Mongoose 预定义模式修饰符：Mongoose 提供了预定义修饰符，可以对我们增加的数据进行一些格式化。如 `lowercase`、`uppercase`、`trim`。
+
+    ``` JavaScript
+    var NewsSchema = mongoose.Schema({
+        // 在 Schema 中配置预定义模式修饰符
+        title: {
+            type: String,
+            trim: true // 保存数据时，该记录自动进行左右去空格操作
+        },
+        author: {
+            type: String,
+            lowercase: true // 保存数据时，该记录自动进行字母转小写
+        },
+        pic: {
+            type: String,
+            uppercase: true // 保存数据时，该记录自动进行字母转大写
+        },
+        content: String,
+        status: {
+            type: Number,
+            default: 1
+        }
+    });
+    ```
+
+2. Mongoose Getters 与 Setters 自定义修饰符：除了 mongoose 内置修饰符以外，我们还可以通过 set（建议使用）修饰符在增加数据的时候对数据进行格式化。也可以通过 get（不建议使用）在模型实例获取数据的时候对进行格式化。
+
+    ``` JavaScript
+    var FocusSchema = mongoose.Schema({
+    // 在 Schema 中配置预定义模式修饰符
+    title: {
+            type: String,
+            trim: true // 保存数据时，该记录自动进行左右去空格操作
+        },
+        pic: String,
+        redirect: {
+            type: String,
+            // 使用 set 来创建自定义模式修饰符，在使用模型实例保存数据时，将对数据进行格式化
+            set(params) { // 增加数据的时候对当前字段进行处理
+                // params 为获取的传递的当前字段的值，返回的为数据库中实际保存的值
+                /*
+                    www.baidu.com -> http://www.baidu.com
+                    http://www.baidu.com -> http://www.baidu.com
+                */
+                if (!params) {
+                    return '';
+                } else {
+                    if (params.indexOf("http://") !== 0 && params.indexOf("https://") !== 0) {
+                        return "http://" + params;
+                    }
+                    return params;
+                }
+            }
+        },
+        status: {
+            type: Number,
+            default: 1
+        }
+    });
+
+    var UserSchema = mongoose.Schema({
+        name: {
+            type: String,
+            // 使用 get 来对直接从模型实例获取数据时进行格式化
+            get(params) {
+                return "a001" + params;
+            }
+        },
+        age: Number,
+        status: {
+            type: Number,
+            default: 1
+        }
+    });
+    ```
+
+### Mongoose 索引、Mongoose 内置 CURD 方法、扩展 Mongoose Model 的静态方法和实例
+
+1. Mongoose 索引
+
+    (1) 索引是对数据库表中一列活多列的值进行排序的一种结构，可以让我们查询数据库变得更快。MongoDB 的索引几乎与传统的关系型数据库一摸一样，之其中也包括一些基本的查询优化技巧。
+
+    (2) mongoose 中除了使用 MongoDB 原生方式创建索引以外，我们也可以在定义 Schema 的时候指定创建索引。
+
+    ``` JavaScript
+    var UserSchema = mongoose.Schema({
+         name: {
+             type: String,
+             unique: true // 通过 unique 设置唯一索引
+         },
+         age: {
+             type: Number,
+             index: true  // 通过 index 属性来设置索引
+         },
+         status: {
+             type: Number,
+             default: 1
+         }
+     });
+    ```
+
+2. Mongoose 内置 CURD，[官方介绍](https://mongoosejs.com/docs/queries.html)：`Model.deleteMany()`、`Model.deleteOne()`、`Model.find()`、`Model.findById()`、`Model.findByIdAndDelete()`、`Model.findByIdAndRemove()`、`Model.findByIdAndUpdate()`、`Model.findOne()`、`Model.findOneAndDelete()`、`Model.findOneAndRemove()`、`Model.findOneAndReplace()`、`Model.findOneAndUpdate()`、`Model.replaceOne()`、`Model.updateMany()`、`Model.updateOne()`。
+
+3. 扩展 Mongoose CURD 方法
+
+    (1) 通过静态方法扩展
+
+    ``` JavaScript
+    // ....
+    // 通过静态方法进行 CURD 扩展
+    UserSchema.statics.findByAge = function (age, callback) {
+        // 通过 find 方法获取 age 数据，this 关键字获取当前的 model
+        this.find({
+            "age": age
+        }, (err, docs) => {
+            callback(err, docs);
+        });
+    };
+
+    var UserModel = mongoose.model("User", UserSchema, "user");
+
+    UserModel.findByAge(19, function (err, docs) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(docs);
+        }
+    });
+    ```
+
+    (2) 通过实例方法扩展
+
+    ``` JavaScript
+    // ...
+    // 通过实例方法扩展，基本不使用该方法
+    UserSchema.methods.print = function () {
+        console.log("我是一个实例方法");
+        console.log(this); // this 指向调用该方法的 UserModel 实例
+    }
+    var UserModel = mongoose.model("User", UserSchema, "user");
+    // 实例化 Model 对象
+    var user = new UserModel({
+        name: "张三啊",
+        age: 22
+    });
+    user.print(); // 调用自定义的实例方法
+    ```
+
+### Mongoose 数据校验
+
+1. mongoose 校验参数
+
+    (1) 用户通过 mongoose 对数据库增加数据的时候对数据合法性的检验就叫做数据校验。
+
+    (2) 内置校验参数
+
+    | 参数名    | 校验内容                                                     |
+    | :-------- | :----------------------------------------------------------- |
+    | required  | 表示这个数据必须传递                                         |
+    | max       | 用于 Number 类型数据，规定最大值                             |
+    | min       | 用于 Number 类型数据，规定最小值                             |
+    | enum      | 枚举类型，要求数据必须满足枚举值，如 `enum: ["0", "1", "2"]` |
+    | match     | 增加的数据必须符合 match（正则）的规则                       |
+    | maxlength | 最大长度                                                     |
+    | minlength | 最小长度                                                     |
+
+    ``` JavaScript
+    var StudentsSchema = mongoose.Schema({
+        name: {
+            type: String, // 指定数据类型
+            require: true, // 必须传入
+            minlength: 2 // 最短长度 2
+        },
+        id: {
+            type: Number,
+            min: 20100101001 // 最小值
+        },
+        age: {
+            type: Number,
+            min: 15, // 最小值
+            max: 25 // 最大值
+        },
+        gender: {
+            type: String,
+            enum: ["男", "女"] // 枚举，数据值必须为枚举中的一个值。枚举用在字符串类型中
+        },
+        address: {
+            type: String,
+            match: /^山东省(.*)/ // 必须以 山东省 开头
+        }
+    });
+    ```
+
+2. mongoose 自定义验证器，通过 `validate` 自定义验证器。
+
+    ``` JavaScript
+    ```
