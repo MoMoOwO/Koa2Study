@@ -12,6 +12,20 @@
 
 3. 这部分内容，与整个教程的教授老师为同一人，[视频链接](http://www.bilibili.com/video/av41033371)。
 
+### MongoDB 数据库导出与导入
+
+1. 在 Mongodb 中我们使用 `mongodump` 命令来备份MongoDB 数据。该命令可以导出所有数据到指定目录中。`mongodump` 命令可以通过参数指定导出的数据量级转存的服务器。使用mongorestore 命令来恢复备份的数据。
+
+2. 导入与导出命令
+
+    ``` bash
+    mongodump -h dbhost -d dbname -o dbdirectory
+
+    mongorestore -h dbhost -d dbname path
+    ```
+
+    ![数据库导出与导入](http://image.acmx.xyz/msj%2Fdb.jpg)
+
 ### mongoose 入门以及 mongoose 实现数据的增删改查
 
 1. [mongoose 官网](https://mongoosejs.com/)
@@ -363,4 +377,250 @@
 2. mongoose 自定义验证器，通过 `validate` 自定义验证器。
 
     ``` JavaScript
+    // 数据校验
+    var StudentsSchema = mongoose.Schema({
+        // ...
+        address: {
+            type: String,
+            match: /^山东省(.*)/, // 必须以 山东省 开头
+            // 通过 validate 自定义验证器，如果通过验证返回 true，否则返回 false
+            validate: function (address) {
+                return address.length >= 6;
+            }
+        }
+    });
+    ```
+
+### Mongoose 中使用 aggregate 聚合管道
+
+1. MongoDB 聚合管道（Aggregation Pipeline）
+
+    (1) 使用聚合管道可以对集合中的文档进行变换和组合。实际项目中常用于表关联查询、数据的统计。
+
+    (2) MongoDB 中使用 `db.collection_name.aggregate([{stage}, ... ])` 方法来构建和使用聚合管道。如下为一个官方示例：
+    ![聚合管道使用](http://image.acmx.xyz/msj%2Fmoag.jpg)
+
+2. MongoDB Aggregation 管道操作符与表达式
+
+    (1) 管道操作符
+
+    | 管道操作符 | 描述                                         |
+    | :--------- | :------------------------------------------- |
+    | $project   | 增加、删除、重命名字段                       |
+    | $match     | 条件匹配。只有满足条件的文档才能进入下一阶段 |
+    | $limit     | 限制结果的数据                               |
+    | $skip      | 跳过文档的数量                               |
+    | $sort      | 条件排序                                     |
+    | $group     | 条件组合结果，统计                           |
+    | $lookup    | 用以引入其他集合的数据（表关联查询）         |
+
+    (2) Sql 中的查询表达式与 NoSql 中的管道操作符的对比
+
+    | Sql      | NoSql    |
+    | :------- | :------- |
+    | WHERE    | $match   |
+    | GROUP BY | $group   |
+    | HAVING   | $match   |
+    | SELECT   | $project |
+    | ORDER BY | $sort    |
+    | LIMIT    | $linit   |
+    | SUM()    | $sum     |
+    | COUNT()  | $sum     |
+    | JOIN     | $lookup  |
+
+    (3) 管道表达式：管道操作为作为“键”，所对应的“值”叫做管道表达式。例如 `{$match:{status: "A"}}` 中 `$match` 称为管道操作符，而 `status: "A"` 称为管道表达式，是管道操作符的操作数（Operand）。每个 管道表达式是一个文档结构，它是由字段名、字段值和一些表达式操作符组成的。
+
+    | 常用表达式操作符 | 描述                   |
+    | :--------------- | :--------------------- |
+    | $addToSet        | 将文档指定字段的值去重 |
+    | $max             | 文档指定字段的最大值   |
+    | $min             | 文档指定字段的最小值   |
+    | $sum             | 文档指定字段求和       |
+    | $avg             | 文档指定字段求平均     |
+    | $gt              | 大于给定值             |
+    | $lt              | 小于给定值             |
+    | $gte             | 大于等于给定的值       |
+    | $lte             | 小于等于给定的值       |
+    | $eq              | 等于给定值             |
+
+    (4) 案例数据
+
+    ``` bash
+    db.order.insert({"order_id":1,"uid":10,"trade_no":111,"all_price":100,"all_num":2})
+    db.order.insert({"order_id":2,"uid":7,"trade_no":222,"all_price":90,"all_num":2})
+    db.order.insert({"order_id":3,"uid":9,"trade_no":333,"all_price":20,"all_num":6})
+    db.order_item.insert({"order_id":1,"title":"商品鼠标1","price":50,num:1})
+    db.order_item.insert({"order_id":1,"title":"商品键盘2","price":50,num:1})
+    db.order_item.insert({"order_id":1,"title":"商品键盘3","price":0,num:1})
+    db.order_item.insert({"order_id":2,"title":"牛奶","price":50,num:1})
+    db.order_item.insert({"order_id":2,"title":"酸奶","price":40,num:1})
+    db.order_item.insert({"order_id":3,"title":"矿泉水","price":2,num:5})
+    db.order_item.insert({"order_id":3,"title":"毛巾","price":10,num:1})
+    ```
+
+    (5) 案例
+
+    - 通过 `$project` 之查找获取 order 集合的 trade_no 和 all_price 字段。
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $project: {trade_no: 1, all_price: 1}
+            }
+        ])
+        ```
+
+    - 通过 `$match` 来获取 all_price 大于 90 的记录，类似于直接在 `find()` 中添加查询条件。
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $project: {trade_no: 1, all_price: 1}
+            },
+            {
+                $match: {"all_price": {$gt: 90}}
+            }
+        ])
+        ```
+
+    - 通过 `$group` 统计每个订单的订单数量，按照订单号分组。
+
+        ``` bash
+        db.order_item.aggregate([
+            {
+                $group: {_id: "$order_id", total: {$sum: "$num"}}
+            }
+        ])
+        ```
+
+    - 通过 `$sort` 对查询结果进行排序
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $project: {trade_no: 1, all_price: 1}
+            },
+            {
+                $match: {"all_price": {$gt: 90}}
+            },
+            {
+                $sort: {"all_price": -1}
+            }
+        ])
+        ```
+
+    - 通过 `$limit` 限制查询记录条数
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $project:{ trade_no:1, all_price:1 }
+            },
+            {
+                $match:{"all_price":{$gte:90}}
+            },
+            {
+                $sort:{"all_price":-1}
+            },
+            {
+                $limit: 1
+            }
+        ])
+        ```
+
+    - 通过 `$skip` 指定跳过的记录数
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $project:{ trade_no:1, all_price:1 }
+            },
+            {
+                $match:{"all_price":{$gte:90}}
+            },
+            {
+                $sort:{"all_price":-1}
+            },
+            {
+                $skip: 1
+            }
+        ])
+        ```
+
+    - 通过 `$lookup` 进行表关联查询
+
+        ``` bash
+        db.order.aggregate([
+            {
+                $lookup:
+                {
+                    from: "order_item",
+                    localField: "order_id",
+                    foreignField: "order_id",
+                    as: "items"
+                }
+            }
+        ])
+        ```
+
+3. Mongoose 中使用 aggregate 多表关联查询
+
+    ``` JavaScript
+    // 查询 order 表，即 order 下面的 order_item
+    OrderModel.aggregate([{
+        $lookup: {
+            from: "order_item", // 要关联的表
+            localField: "order_id", // 关联所使用的字段
+            foreignField: "order_id", // 关联的表中对应的字段
+            as: "items" // 关联后存放的字段
+        }
+    }], (err, docs) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(JSON.stringify(docs));
+        }
+    });
+    ```
+
+4. mongoose 中获取 ObjectId：`mongoose.Types.ObjectId()`
+
+### Mongoose 中使用 populate 实现关联查询
+
+1. Mongoose populate [官方文档](https://mongoosejs.com/docs/populate.html)
+
+2. populate 使用
+
+    (1) 定义 ref
+
+    ``` JavaScript
+    var ArticleSchema = mongoose.Schema({
+        title: {
+            type: String,
+            unique: true
+        },
+        cid: {
+            type: mongoose.Types.ObjectId,
+            ref: "ArticleCate" // 通过 ref 引用，指定关联的 集合，ref 的值为可以操作集合的 Model
+        },
+        author_id: {
+            type: mongoose.Types.ObjectId,
+            ref: "Author"
+        },
+        author_name: String,
+        description: String,
+        content: String
+    });
+    ```
+
+    (2) 通过 `populate` 接口实现关联查询
+
+    ``` JavaScript
+    ArticleModel.find({}).populate("cid").populate("author_id").exec((err, docs) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(docs);
+        }
+    });
     ```
