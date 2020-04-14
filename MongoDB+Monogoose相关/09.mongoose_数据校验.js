@@ -1,5 +1,6 @@
 var StudentsModel = require("./model/students.js");
 
+// 在 StudentSchema 已经对 students 进行了数据校验，想起看 ./model/students.js
 var stu = new StudentsModel({
     name: "张四",
     id: 20130101002,
