@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"eggcms.article_cate"},{"v":{"$numberInt":"2"},"unique":true,"key":{"title":{"$numberInt":"1"}},"name":"title_1","ns":"eggcms.article_cate","background":true}],"uuid":"6b7f79d8664543c9b3afed3811ee0a4c"}
