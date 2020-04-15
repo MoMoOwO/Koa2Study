@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    新闻列表 --- ejs 循环渲染数据
+    <ul>
+        <!-- 循环语句渲染数据 -->
+        <%for (let i = 0; i < list.length; i++) {%>
+        <li><%=list[i]%></li>
+        <%}%>
+    </ul>
+    <!-- 绑定 HTML 代码块 -->
+    <%-h2%>
+
+        <!-- 条件判断 -->
+        <%if(num > 25) {%>
+        大于 25
+        <%} else {%>
+        小于 25
+        <%}%>
+
+    <hr>
+    <%=session%>
+</body>
+
+</html>
