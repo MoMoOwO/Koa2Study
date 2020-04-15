@@ -624,3 +624,383 @@
         }
     });
     ```
+
+## Koa2
+
+### koa2 框架介绍与环境搭建及预备知识
+
+1. koa 框架介绍
+
+    (1) Node.js 是一个异步的世界，官方API 支持的都是 callback 形式的异步编程模型，这会带来许多问题，例如：callback 嵌套问题，异步函数中可能同步调用 callback 返回数据，带来不一致性。为了解决以上问题 Koa2 出现了。
+
+    (2) Koa 是一个基于 Node.js 平台的下一代 web 开发框架。koa 是由 Express 原班人马打造的，致力于成为一个更小、更富有表现力、更健壮的 Web 框架。使用 koa2 编写web 应用，可以免除重复繁琐的回调函数嵌套， 并极大地提升错误处理的效率。koa 不在内核方法中绑定任何中间件， 它仅仅提供了一个轻量优雅的函数库，使得编写Web 应用变得得心应手。开发思路和 express 差不多，最大的特点就是可以避免异步嵌套。
+
+    (3) [中文官方](https://www.koajs.com.cn/#)
+
+2. koa2.x 框架 的安装使用
+
+    (1) 安装 Node.js 8.x 以上版本。开发 Koa2 之前，Node.js 是有要求的，它要求 Node.js 版本高于 V7.6。因为node.js 7.6 版本开始完全支持 async/await，所以才能完全你支持我们的 Koa2。
+
+    (2) 安装 Koa 框架和我们以前安装其他模块是一样的。运行命令 `npm install --save koa`。
+
+    (3) 简单使用
+
+    ``` JavaScript
+    // 1. 引入模块
+    var koa = require("koa");
+
+    // 2. 实例化一个 app
+    var app = new koa();
+
+    // 3. 配置路由
+    // 配置中间件，暂时当作路由
+    app.use(async (ctx) => {
+        ctx.body = "你好，koa 2.x";
+    });
+
+    // 4. 监听端口
+    app.listen(8888);
+    ```
+
+3. ES6 常见的语法
+
+    (1) let：let 关键字与 var 关键字类似，用于声明变量；不同的是 let 声明的变量是在块作用域中生效，var 生命的变量在全局作用域中生效。const：也是声明块级作用域的变量，但是使用 const 关键字声明的变量是常量，初始化之后不能再做改变。
+
+    (2) 箭头函数
+
+    ```JavaScript
+    setTimeout(function () {
+        console.log("1s 过去了。");
+    }, 1000);
+    setTimeout(() => { // 箭头函数中 this 指向上下文
+        console.log("1s 过去了。");
+    }, 1000);
+    ```
+
+    (3) 对象、属性简写
+
+    ``` JavaScript
+    let name = "张三";
+    let age = 18;
+
+    // 对象、属性的简写
+    let p = { // 对象简写，直接使用花括号包裹，属性和方法写道花括号中
+        name, // 当属性名和属性值变量名相同时，可以使用只写一个变量名方式简写
+        age,
+        run() { // 方法可以直接声明方法来简写，调用的时候还是使用方法名调用
+            console.log(`${this.name}在跑步`);
+        }
+    }
+    console.log(p.age);
+    p.run();
+    ```
+
+    (4) 模板字符串，用于字符串拼接。
+
+    ``` JavaScript
+    let name = "张三";
+    let age = 18;
+    console.log("姓名：" + name + "，年龄：" + age);
+    // 使用模板字符串进行字符串拼接
+    console.log(`姓名：${name}，年龄：${age}`);
+    ```
+
+    (5) Promise
+
+    ``` JavaScript
+    // 使用 promise 实现从异步方法中获取数据
+    // resolve 表示成功的回调，reject 表示失败的回调
+    let pr = new Promise((resolve, reject) => {
+        // 模拟 ajax
+        setTimeout(() => {
+            let pName = "李四";
+            if (Math.random() < 0.5) {
+                resolve(pName); // 成功的回调
+            } else {
+                reject("查询失败！"); // 失败的回调
+            }
+
+        }, 3000);
+    });
+    pr.then((data) => {
+        console.log(data);
+    }, (err) => {
+        console.log(err);
+    });
+    ```
+
+4. 异步处理 async 与 await
+
+    (1) async 是“异步”的简写，而 await 可以认为是 async wait 的简写。所以应该很好理解 async 用于申明一个function 是异步的，而 await 用于等待一个异步方法执行完成。可以简单理解为：async 是让方法变成异步，而 await 则是等待异步方法执行完成。
+
+    (2) 详细说明
+
+    - async 是让方法变成异步，在终端里用 node 执行这段代码，你会发现输出了 `Promise {'Hello async'}`，这时候会发现它返回的是Promise。
+
+        ``` JavaScript
+        async function getData(){
+            return "Hello async";
+        }
+        console.log(getData());
+        ```
+
+    - await 在等待 async 方法执行完毕，其实 await 等待的只是一个表达式，这个表达式在官方文档里说的是 Promise 对象，但是它也可以接受普通值。注意：await 必须在 async 方法中才可以使用因为 await 访问本身就会造成程序停止堵塞，所以必须在异步方法中才可以使用。
+
+        ``` JavaScript
+        async function getData2() {
+            return "async 修饰的异步方法返回的数据";
+        }
+        async function test() {
+            let data = await getData2();
+            console.log(data);
+        }
+        test();
+        ```
+
+    - async/await 同时使用：async 会将其后的函数（函数表达式或 Lambda）的返回值封装成一个 Promise 对象，而 await 会等待这个 Promise 完成，并将其 resolve 的结果返回出来。
+
+        ``` JavaScript
+        // 配合使用 async/await 获取 异步方法中的数据
+        function getData4() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    let userName = "王五";
+                    resolve(userName);
+                });
+            });
+        }
+        async function test2() {
+            var ndata = await getData4();
+            console.log(ndata);
+        }
+        test2();
+        ```
+
+### koa 路由、get 传值以及动态路由
+
+1. Koa 路由
+
+    (1) 路由（Routing）是由一个 URI（或者叫路径）和一个特定的 HTTP 方法（GET、POST 等）组成的，涉及到应用如何响应客户端对某个网站节点的访问。通俗的讲：路由就是根据不同的URL 地址，加载不同的页面实现不同的功能。
+
+    (2) Koa 中的路由和 Express 有所不同，在 Express 中直接引入 Express 就可以配置路由，但是在 Koa 中我们需要安装对应的 koa-router 路由模块来实现。可通过运行 `npm i koa-router -S` 命令进行安装。
+
+2. koa get 传值及获取传值
+
+    (1) koa 路由基本使用
+
+    ``` JavaScript
+    // 引入相关模块
+    const Koa = require("koa");
+    const Router = require("koa-router");
+
+    // 实例化一个 app
+    let app = new Koa();
+
+    // 实例化一个路由对象
+    let router = new Router();
+    // 配置路由
+    router.get("/", async (ctx) => { // ctx:context 上下文，包含了 request 和 response 信息
+        ctx.body = "首页"; // 返回数据  相当于原生中的 res.writeHead() res.end()
+    }).get("/news", async (ctx) => {
+        ctx.body = "这是新闻页";
+    });
+
+    // 配置启用路由
+    app.use(router.routes());
+    app.use(router.allowedMethods());
+    /* 作用： 这是官方文档的推荐用法，
+    我们可以看到 router.allowedMethods() 用在了路由匹配router.routes() 之后, 所以在当所有
+    路由中间件最后调用.此时根据ctx.status 设置response 响应头 */
+
+    // 监听端口
+    app.listen(8888, () => {
+        console.log("Starting at post 8888");
+    });
+    ```
+
+    (2) get 传值，及获取传值：在koa2 中 GET 传值通过 request 接收，但是接收的方法有两种：`query` 和`querystring`。`query`：返回的是格式化好的参数对象。`querystring`：返回的是请求字符串。另外还可以通过 `ctx.request` 对象来获取传值。相比来说直接通过 `query` 来获取传值比较方便且实用。
+
+    ``` JavaScript
+    // 获取 get 传值
+    // http://localhost:8888/newscontent?nid=123
+    router.get("/newscontent", async (ctx) => {
+        // 从 ctx 中 获取 get 传值
+        /*
+        在koa2 中 GET 传值通过 request 接收，但是接收的方法有两种： query 和 querystring。
+        query：返回的是格式化好的参数对象。
+        querystring：返回的是请求字符串。
+        */
+        console.log(ctx.query); // { nid: '123' }
+        console.log(ctx.querystring); // nid=123 获取的是一个字符串
+
+        // ctx 里面的 request 里面获取 get 传值
+        console.log(ctx.request.url); // /newscontent?nid=123
+        console.log(ctx.request.query); // { id: '1223' }
+        console.log(ctx.request.querystring); // nid=123
+
+        ctx.body = "新闻详情";
+    });
+    ```
+
+3. 动态路由
+
+    ``` JavaScript
+    // 获取动态路由传值
+    // http://localhost:8888/xxx
+    router.get("/newscontent/:nid", async (ctx) => {
+        console.log(ctx.params); // { nid: 'ddd' } 获取动态路由数据
+        ctx.body = "新闻详情";
+    });
+    ```
+
+### koa 中间件
+
+1. 什么是 koa 的中间件
+
+    (1) 通俗的讲：中间件就是匹配路由之前或者匹配路由完成做的一系列的操作，我们就可以把它叫做中间件。
+
+    (2) 在express 中间件（Middleware）是一个函数，它可以访问请求对象（request object (req)），响应对象（response object (res)），和 web 应用中处理请求-响应循环流程中的中间件，一般被命名为next 的变量。在 Koa 中中间件和 express 有点类似。
+
+    (3) 中间件的共鞥你包括：
+
+    - 执行任何代码
+    - 修改请求和响应对象
+    - 终结请求-响应循环
+    - 调用堆栈中的下一个中间件
+
+    (4) 如果我的 get、post 回调函数中，没有 next 参数，那么就匹配上第一个路由，就不会往下匹配了。如果想往下匹配的话，那么需要写 `next()`
+
+2. koa 中间件分类及使用
+
+    (1) 应用级中间件
+
+    ``` JavaScript
+    // ...
+    // 应用级中间件
+    app.use(async (ctx, next) => { // 没有路由参数，则匹配所有路由
+        // 所有的路由请求响应前都会先经过该处
+        // 应用案例：后台验证访问是否许可
+        // demo：匹配任何路由之前打印日期
+        console.log(new Date());
+        await next(); // 当前路由匹配完成之后，继续向下匹配路由；如果不写 next() 则路由到此位置终止
+    });
+    // ...
+    ```
+
+    (2) 路由级中间件
+
+    ``` JavaScript
+    // 路由级中间件
+    router.get("/", async (ctx) => {
+        ctx.body = "Hello koa";
+    });
+    router.get("/news", async (ctx, next) => {
+        console.log("这是新闻页");
+        await next(); // 继续向下匹配
+    });
+    router.get("/news", async (ctx) => {
+        ctx.body = "新闻页";
+    });
+    ```
+
+    (3) 错误处理中间件
+
+    ``` JavaScript
+    // 错误处理中间件
+    // use 声明的中间件无论位置在哪，都会优先于路由中间件执行
+    app.use(async (ctx, next) => {
+        next();
+        if (ctx.status === 404) { // 如果页面找不到
+            ctx.status = 404;
+            ctx.body = "这是一个 404 页面";
+        } else {
+            console.log(ctx.url);
+        }
+    });
+    ```
+
+    (4) 第三方中间件
+
+    ``` JavaScript
+    const static = require('koa-static');
+    const staticPath = './static';
+    app.use(static(
+        path.join( __dirname, staticPath)
+    ));
+    ```
+
+3. koa 中间件的执行顺序：Koa 的中间件和 Express 不同，Koa 选择了洋葱圈模型。
+![洋葱模型](http://image.acmx.xyz/msj%2Fmdwyc.jpg)
+
+### koa 中使用 ejs 模板引擎
+
+1. 安装 koa-view 和 ejs
+
+    (1) 运行命令 `npm i koa-views -S` 安装 koa-views。
+
+    (2)运行命令 `npm i ejs -S` 安装 ejs。
+
+2. 引入与配置 koa-views 中间件
+
+    ``` JavaScript
+    const views = require("koa-views");
+    // 配置模板引擎中间件 -- 第三方中间件
+    // app.use(views("views", {map: {html: "ejs"}}));  // 配置方式1，模板文件后缀名 .html
+    app.use(views("views", {
+        extension: "ejs" // 使用 ejs 模板引擎  配置方法2，模板文件后缀名 .ejs
+    }));
+    ```
+
+3. koa 中使用 ejs
+
+    ``` JavaScript
+    router.get("/", async (ctx) => {
+        let title = "你好，EJS";
+        // 渲染模板引擎，并传递数据
+        await ctx.render("index", {
+            title
+        });
+    });
+    ```
+
+4. ejs 模板
+
+    (1) ejs 模板引入：`<%-include("public/header.ejs")%>`
+
+    (2) ejs 绑定数据：`<%=h%>`
+
+    (3) ejs 绑定 html 数据：`<%-h%>`
+
+    (4) ejs 模板判断语句
+
+    ``` HTML
+    <!-- 条件判断 -->
+    <%if(num > 25) {%>
+        大于 25
+    <%} else {%>
+        小于 25
+    <%}%>
+    ```
+
+    (5) ejs 模板中使用循环语句绑定数据
+
+    ``` HTML
+    新闻列表 --- ejs 循环渲染数据
+    <ul>
+        <%for (let i = 0; i < list.length; i++) {%>
+        <li><%=list[i]%></li>
+        <%}%>
+    </ul>
+    ```
+
+    (6) 当我们使用 koa 需要在每一个路由的 render 里面都要渲染一个公共的数据，公共的数据放在 state 里面，这样的话在模板任何地方都可以使用，需要在应用级中间件中配置。
+
+    ``` JavaScript
+    app.use(async (ctx, next) => {
+        ctx.state = {
+            session: "这是一个 session",
+            appName: "app"
+        };
+        await next();
+    });
+    ```
