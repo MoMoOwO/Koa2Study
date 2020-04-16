@@ -1004,3 +1004,157 @@
         await next();
     });
     ```
+
+### koa 中 post 提交数据以及 koa-bodyparser 中间件的使用
+
+1. 原生 Node.js 获取 post 提交数据
+
+    ``` JavaScript
+    // common.js
+    exports.getPostData = function (ctx) {
+        // 这是一个异步
+        return new Promise((resolve, reject) => {
+            try {
+                // 通过管道获取数据
+                let str = "";
+                ctx.req.on("data", (chunk) => {
+                    str += chunk;
+                });
+                ctx.req.on("end", (chunk) => {
+                    resolve(str);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    // app.js
+    const common = require("./module/common.js");
+    // ...
+    // 响应 post 清酒平接受 post 请求提交的数据
+    router.post("/doAdd", async (ctx) => {
+        // 获取 post 数据
+        // 方式1：原生 nodejs 在 koa 中获取 post 请求数据
+        let data = await common.getPostData(ctx);
+        ctx.body = data;
+    });
+    ```
+
+2. koa 中 使用 koa-bodyparse 中间件获取 post 提交数据
+
+    (1) 安装，运行命令 `npm i koa-bodyparser -S`
+
+    (2) 配置及使用
+
+    ``` JavaScript
+    // 引入模块
+    const bodyParser = require("koa-bodyparser");
+
+    // 响应 post 清酒平接受 post 请求提交的数据
+    router.post("/doAdd", async (ctx) => {
+        // 获取 post 数据
+        // 方式2：借助 koa-bodyparser 中间件在 koa 中获取 post 请求数据
+        console.log(ctx.request.body);
+        ctx.body = ctx.request.body;
+    });
+    ```
+
+### koa 静态资源中间件 koa-static
+
+1. 安装，运行命令 `npm i koa-static -S` 进行安装。
+
+2. 使用
+
+    ``` JavaScript
+    // 引入模块
+    const static = require("koa-static");
+    // ...
+    // 当使用 static 中的静态资源的时候，首先在 static 目录下查找，查找无果则继续往下面目录查找
+    //app.use(static("./static"));
+    app.use(static(path.join(__dirname, "static")));
+    // 同样可以配置多个静态路径，会挨个查找静态资源
+    // 配置之后可以在模板中正常引入静态资源了
+    ```
+
+### koa art-template 模板引擎
+
+1. 常见模板引擎
+
+    (1) 适用于 koa 的模板引擎选择非常多，比如 jade、ejs、nunjucks、art-template 等。
+
+    (2) art-template 是一个简约、超快的模板引擎。它采用作用域预声明的技术来优化模板渲染速度，从而获得接近 JavaScript 的运行性能，并且支持 Node.js 和浏览器。art-template 支持 ejs 的语法，也可以用自己的类似 angular 数据绑定的语法。[官网](http://aui.github.io/art-template/docs/index.html)
+
+    (3) 常见模板引擎的性能对比
+    ![性能](http://image.acmx.xyz/msj%2Ftmpxn.jpg)
+    ![负荷](http://image.acmx.xyz/msj%2Ftmpfh.jpg)
+
+2. 在 koa 中使用 art-template 模板引擎
+
+    (1) 安装依赖模块，运行命令 `npm i art-template koa-art-template -S`
+
+    (2) 安装配置并使用
+
+    ``` JavaScript
+    // 引入模块
+    const render = require("koa-art-template");
+
+    // ...
+
+    // 配置 koa-art-template 模板引擎
+    render(app, {
+        root: path.join(__dirname, "views"), // 视图根目录
+        extname: ".art", // 模板文件后缀名
+        debug: process.env.NODE_ENV !== "production" // 是否开启调试模式
+    });
+
+    router.get("/", async (ctx) => {
+        // 使用
+        let list = {
+            name: "张三"
+        }
+        await ctx.render("index", {
+            list
+        });
+    });
+    ```
+
+3. art-template 模板引擎语法，[文档](http://aui.github.io/art-template/zh-cn/docs/syntax.html)。
+
+### koa 中 cookie 与 session 的使用
+
+1. cookie
+
+    (1) cookie 简介
+
+    - cookie 是存储与访问者的计算机中的变量。可以让我们用同一个浏览器访问同一个域名的时候共享数据。
+    - HTTP 是无状态协议。简单地说，当你浏览一个页面，然后转到同一个网站的另一个页面，服务气无法认识到这是同一个浏览器在访问同一个网站。每一次的访问，都是没有任何关系的。
+    - 应用场景：保存用户信息，浏览器历史记录，猜你喜欢的功能，十天免登录，多个页面之间传值，cookie 实现购物车功能。
+
+    (2) koa 中设置 cookie：`ctx.cookies.set(name, value, [options]);`，通过 `options` 设置 cookie.name 的 value，具体如下：
+
+    | options 名称 | options 值                                                                                                                                     |
+    | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+    | maxAge       | 一个数字表示从 Date.now() 得到的毫秒数                                                                                                         |
+    | expires      | cookie 过期的 Date                                                                                                                             |
+    | path         | cookie 的路径，默认是 '/'                                                                                                                      |
+    | domain       | cookie 域名                                                                                                                                    |
+    | secure       | 安全 cookie，默认 false，设置成 true 表示只有 https 可以访问                                                                                   |
+    | httpOnly     | 是否只是服务器访问 cookie，默认是 true                                                                                                         |
+    | overwrite    | 一个布尔值，表示是否覆盖以前设置的同名的 cookie，默认为 false，若设置为 true，在同一请求中设置相同名称的所有 cookie 从 set-cookie 表头中过滤掉 |
+
+    (3) koa 中获取 cookie 的值：`ctx.cokies.get("name");`
+
+    (4) koa 中设置中文 cookie
+
+    ``` JavaScript
+    // koa 中无法直接设置中文 cookie
+    let name = Buffer.from("张三").toString("base64"); // 转换为 base64 字符
+    ctx.cookies.set("username", name, {
+        maxAge: 60 * 1000 * 60 // 过期时间
+    });
+    let n = Buffer.from(String(ctx.cookies.get("username")), "base64"); // 还原 base64 字符
+    console.log(n); // 张三
+    ```
+
+2. session
