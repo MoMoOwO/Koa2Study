@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h2>art-template 使用</h2>
+    <hr>
+    <!-- 原始语法，类似于 ejs -->
+    <h2>数据绑定</h2>
+    <h3><%=list.name%></h3>
+    <hr>
+    <h2>运算</h2>
+    <h3><%=1  + 2%></h3>
+    <hr>
+    <h2>绑定 HTML</h2>
+    <%-list.h3%>
+    <hr>
+    <h2>条件判断</h2>
+    <%if(num > 20) {%>
+    num 大于 20
+    <%} else {%>
+    num 小于 20
+    <%}%>
+        <hr>
+        <h2>循环</h2>
+        <ul>
+            <%for(let i = 0; i < list.arr.length; i++) {%>
+    <li><%=list.arr[i]%></li>
+    <%}%>
+        </ul>
+
+    <%-include("./public/footer.html")%>
+
+
+</body>
+
+</html>
