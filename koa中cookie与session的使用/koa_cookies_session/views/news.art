@@ -9,7 +9,7 @@
 
 <body>
     <h2>新闻页</h2>
-
+    {{username}}
 </body>
 
 </html>
