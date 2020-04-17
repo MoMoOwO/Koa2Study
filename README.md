@@ -1158,3 +1158,72 @@
     ```
 
 2. session
+
+    (1) session 简单介绍：session 是另一种记录客户状态的机制，不同的是 cookie 保存在客户端浏览器中，而 session 保存在服务器上。
+
+    (2) session 的工作流程：当浏览器访问服务器斌告诉你个第一次请求时，服务气端会创建一个 session 对象，生成一个类似于 key-value 键值对，然后将 key（cookie）返回到浏览器（客户）端，浏览器下次再访问时，携带 key（cookie），找到对应的 session（value）。客户的信息都保存在 session 中。
+
+    (3) koa-session 的使用
+
+    - 安装，运行命令 `npm i koa-session -S`
+    - 配置及使用
+
+        ``` JavaScript
+        // 引入模块
+        const session = require("koa-session");
+        // 配置 koa-session 中间件
+        app.keys = ["some secret hurr"]; // cookie 签名
+        const CONFIG = {
+            key: "koa:sess", // cookie key 默认 koa:sess 一般不修改
+            maxAge: 1000, // cookie 过期时间，单位 ms，默认为一天，  需要设置
+            overwrite: true, // 是否可以重写，默认 true
+            httpOnly: true, // cookie 是否只有服务器端可以访问，默认 true
+            signed: true, // 签名，默认 true
+            rolling: false, // 在每次请求时强行设置 cookie，这将重置 cookie 过期时间，默认 false
+            renew: true, // 是否 maxAge 无操作的时候使 cookie 过期  需要设置
+        };
+        app.use(session(CONFIG, app)); // 应用配置项
+
+        router.get("/", async (ctx) => {
+            // 获取 session
+            let username = ctx.session.userinfo;
+            console.log(username);
+            await ctx.render("index", {
+                username
+            });
+        });
+
+        router.get("/login", async (ctx) => {
+            // 设置 session
+            ctx.session.userinfo = "张三";
+            ctx.body = "登录页";
+        });
+        ```
+
+3. cookie 和 session 的区别
+
+    (1) cookie 数据存放在客户的浏览器上，session 数据放在服务器上。
+
+    (2) cookie 不是很安全，别人可以分析存放在本地的 cookie 并进行 cookie 欺骗；考虑到安全因素应当使用 session。
+
+    (3) session 会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能；考虑到减轻服务器性能方面，应当使用 cookie。
+
+    (4) 单个 cookie 保存的数据不能超过 4k，很多浏览器都限制一个站点最多保存 20 个 cookie。
+
+### MongoDB Compass Community 可视化工具的使用
+
+1. MongoDB Compass Community 可视化工具介绍：了，MongoDB Compass 是 MongoDB 官网提供的一个集创建数据库、管理集合和文档、运行临时查询、评估和优化查询、性能图表、构建地理查询等功能为一体的 MongoDB 可视化管理工具。
+
+2. MongoDB Compass Community 下载
+
+    (1) [下载](https://www.mongodb.com/download-center/community)最新 MongoDB 安装完成后会自动安装 MongoDB 可视化工具。
+
+    (2) 单独[下载](https://www.mongodb.com/download-center/compass) MongoDB 可视化工具。
+
+### 封装 MongoDB 库之前的一些准备工作-ES5、ES6 class 类，静态方法以及单例模式
+
+1. 原生 JS 中的类、静态方法、集成
+
+2. ES6 中的类、静态方法、集成
+
+3. ES6 的单例模式
