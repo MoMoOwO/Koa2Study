@@ -1227,3 +1227,9 @@
 2. ES6 中的类、静态方法、集成
 
 3. ES6 的单例模式
+
+### 封装 koa 操作 MongoDB 数据库的 DB 类库
+
+1. 目标：基于官方 node-mongodb-native 驱动，封装一个“更小、更快、更灵活”的 DB 模块，让我们用 nodejs 操作  MongoDB 数据库更方便、更灵活。
+
+2. koa 操作 MongoDB 数据库：[node-mongodb-native官方文档](http://mongodb.github.io/node-mongodb-native/)
