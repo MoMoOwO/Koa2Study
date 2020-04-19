@@ -1233,3 +1233,72 @@
 1. 目标：基于官方 node-mongodb-native 驱动，封装一个“更小、更快、更灵活”的 DB 模块，让我们用 nodejs 操作  MongoDB 数据库更方便、更灵活。
 
 2. koa 操作 MongoDB 数据库：[node-mongodb-native官方文档](http://mongodb.github.io/node-mongodb-native/)
+
+### Koa 应用生成器以及 Koa 路由模块化
+
+1. Koa 应用生成器，通过使用 koa 脚手架生成工具可以快速创建一个基于 koa2 的应用骨架。
+
+    (1) 全局安装 koa 脚手架，运行命令 `npm i koa-generator -g`
+
+    (2) 创建项目，运行命令 `koa2 koa_demo`
+
+    (3) 安装依赖，运行命令
+
+    ``` bash
+    cd koa_demo
+    npm install
+    ```
+
+    (4) 启动项目，运行命令 `node bin/www`
+
+2. Koa 搭建模块化路由/层级路由
+
+    (1) 在项目根目录下新建一个文件夹 routes，用于存放路由文件
+
+    (2) 在 routes 里面配置对应的子路由，如在 admin.js 文件中配置下面的子路由，并暴露出去
+
+    ``` JavaScript
+    const router = require("koa-router")();
+
+    router.get("/", async (ctx) => {
+        ctx.body = "后台管理首页";
+    });
+
+    router.get("/user", async (ctx) => {
+        ctx.body = "后台管理-用户管理";
+    });
+
+    router.get("/goods", async (ctx) => {
+        ctx.body = "后台管理-商品管理";
+    });
+
+    router.get("/news", async (ctx) => {
+        ctx.body = "后台管理-新闻管理";
+    });
+
+    //  暴漏路由模块
+    module.exports = router;
+    ```
+
+    (3) 在 app.js 路由中引入并配置启用子路由模块
+
+    ``` JavaScript
+    const router = require("koa-router")();
+    // 引入路由模块
+    const admin = require("./routes/admin");
+    // 配置子路由 层级路由
+    router.use("/admin", admin.routes());
+    // 之后在访问 /admin/news 之后会去 admin.js 中匹配路由
+    ```
+
+### Koa 打造企业级 CMS 内容管理系统
+
+1. 什么是 CMS：CMS 是“Content Management System”的缩写，意为“内容管理系统”。内容管理系统是企业信息化建设和电子商务的新宠，也是一个相对较新的时长。杜宇内容管理，业界还没有一个统一的定义，不同的机构有不同的理解。
+
+2. XMind 分析项目功能
+![功能](http://image.acmx.xyz/msj%2Fyewu.jpg)
+
+3. ERStudio 设计数据库 E-R 图
+![E-R图](http://image.acmx.xyz/msj%2Fer.jpg)
+
+4. CMS 内容管理系统框架搭建
