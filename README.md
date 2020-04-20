@@ -1302,3 +1302,5 @@
 ![E-R图](http://image.acmx.xyz/msj%2Fer.jpg)
 
 4. CMS 内容管理系统框架搭建
+![登陆页面](http://image.acmx.xyz/msj%2Fcmslogin.jpg)
+![后台管理页面](http://image.acmx.xyz/msj%2Fcmsback.jpg)
