@@ -59,25 +59,27 @@
 
 										<div class="space-6"></div>
 
-										<form>
+										<form action="{{__HOST__}}/admin/login/doLogin" method="post">
 											<fieldset>
 												<label class="block clearfix">
 													<span class="block input-icon input-icon-right">
-														<input type="text" class="form-control" placeholder="用户名" />
+														<input type="text" name="username" class="form-control"
+															placeholder="用户名" />
 														<i class="icon-user"></i>
 													</span>
 												</label>
 
 												<label class="block clearfix">
 													<span class="block input-icon input-icon-right">
-														<input type="password" class="form-control" placeholder="密码" />
+														<input type="password" name="password" class="form-control"
+															placeholder="密码" />
 														<i class="icon-lock"></i>
 													</span>
 												</label>
 
 												<label class="block clearfix">
 													<span class="block input-icon input-icon-right">
-														<input type="password" class="form-control" placeholder="验证吗"
+														<input type="password" class="form-control" placeholder="验证码"
 															style="width:200px;float:left;" />
 														<img style="float:right;"
 															src="https://www.itying.com/koa/admin_express.php?m=Public&a=verify&rand=1521453067"
@@ -93,7 +95,7 @@
 														<span class="lbl"> Remember Me</span>
 													</label>
 
-													<button type="button"
+													<button type="submit"
 														class="width-35 pull-right btn btn-sm btn-primary">
 														<i class="icon-key"></i>
 														登录

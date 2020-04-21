@@ -8,11 +8,21 @@ router.use(async (ctx, next) => {
     //console.log(ctx.request.header.host);
     // 模板引擎配置全局的变量
     ctx.state.__HOST__ = "http://" + ctx.request.header.host;
-    await next();
+    //console.log(ctx.url);
+    // 利用 session 保持登录和权限判断
+    if (ctx.session.userinfo) {
+        await next(); // 登录则继续向下匹配路由
+    } else {
+        if (ctx.url == "/admin/login" || ctx.url == "/admin/login/doLogin") {
+            await next();
+        } else {
+            ctx.redirect("/admin/login");
+        }
+    }
 });
 
 router.get("/", async (ctx) => {
-    ctx.body = "后台管理";
+    await ctx.render("admin/index");
 });
 
 router.use("/login", login);
